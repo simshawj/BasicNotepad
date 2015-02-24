@@ -1,12 +1,14 @@
 package com.jamessimshaw.basicnotepad;
 
-import android.net.Uri;
-
 /**
  * Created by james on 2/23/15.
  */
 public class Note {
-    String mNoteText;
+    private String mNoteText;
+
+    public Note() {
+        mNoteText = "";
+    }
 
     public Note(String noteText) {
         mNoteText = noteText;

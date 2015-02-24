@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".PageActivity">
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
-    <item android:id="@+id/action_new" android:title="New" />
-    <item android:id="@+id/action_load" android:title="Load" />
-    <item android:id="@+id/action_save" android:title="Save" />
+    <item android:id="@+id/action_new" android:title="@string/action_new" />
+    <item android:id="@+id/action_load" android:title="@string/action_load" />
+    <item android:id="@+id/action_save" android:title="@string/action_save" />
 </menu>
