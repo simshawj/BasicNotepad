@@ -30,16 +30,12 @@ public class PageActivity extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_page, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
@@ -56,13 +52,13 @@ public class PageActivity extends ActionBarActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(getString(R.string.savePromptMessage));
                 builder.setCancelable(true);
-                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //TODO: Save note to external storage if available otherwise display an error
                     }
                 });
-                builder.setNegativeButton("Don't Save", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         createNewNote();

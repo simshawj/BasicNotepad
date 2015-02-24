@@ -7,4 +7,6 @@
     <string name="action_load">Load</string>
     <string name="action_save">Save</string>
     <string name="savePromptMessage">Do you want to save your note?</string>
+    <string name="savePromptSaveOption">Save</string>
+    <string name="savePromptNoSaveOption">Don\'t Save</string>
 </resources>
