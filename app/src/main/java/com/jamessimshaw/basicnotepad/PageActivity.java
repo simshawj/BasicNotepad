@@ -18,13 +18,17 @@ public class PageActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_page);
         mNoteText = (EditText) findViewById(R.id.noteText);
-        mCurrentNote = new Note(); //TODO: Restore previously used note
-        createNewNote();
+        if (autosaveNoteAvailable()) {
+            restoreAutosavedNote();
+        }
+        else {
+            createNewNote();
+        }
     }
 
     @Override
     protected void onStop() {
-        //TODO: Add auto save of note to private storage area
+        autosaveCurrentNote();
         super.onStop();
     }
 
@@ -42,9 +46,31 @@ public class PageActivity extends ActionBarActivity {
             return true;
         }
         else if (id == R.id.action_load) {
+            if (hasNoteTextChanged()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(getString(R.string.savePromptMessage));
+                builder.setCancelable(true);
+                builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveCurrentNote();
+                    }
+                });
+                builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        loadNote();
+                    }
+                });
+                builder.create().show();
+            }
+            else{
+                loadNote();
+            }
             return true;
         }
         else if (id == R.id.action_save) {
+            saveCurrentNote();
             return true;
         }
         else if (id == R.id.action_new) {
@@ -55,7 +81,7 @@ public class PageActivity extends ActionBarActivity {
                 builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: Save note to external storage if available otherwise display an error
+                        saveCurrentNote();
                     }
                 });
                 builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
@@ -80,11 +106,27 @@ public class PageActivity extends ActionBarActivity {
         mNoteText.setText("");
     }
 
+    private void loadNote() {
+        //TODO: Prompt user where note is saved and load the note
+    }
+
     private void saveCurrentNote() {
         //TODO: Add in ability to save notes to documents folder
     }
 
     private boolean hasNoteTextChanged() {
         return !mCurrentNote.getNoteText().equals(mNoteText.getText().toString());
+    }
+
+    private void autosaveCurrentNote() {
+
+    }
+
+    private void restoreAutosavedNote() {
+
+    }
+
+    private boolean autosaveNoteAvailable() {
+        return false;
     }
 }
