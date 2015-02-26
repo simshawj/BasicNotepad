@@ -1,6 +1,7 @@
 package com.jamessimshaw.basicnotepad;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -8,6 +9,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 public class PageActivity extends ActionBarActivity {
@@ -129,6 +134,34 @@ public class PageActivity extends ActionBarActivity {
 
     private void autosaveCurrentNote() {
         Log.i(TAG, "In autosaveCurrentNote()");
+        FileOutputStream outputStream;
+
+        try {
+            outputStream = openFileOutput(AUTOSAVE_FILENAME, Context.MODE_PRIVATE);
+            outputStream.write(mCurrentNote.getNoteText().getBytes());
+            outputStream.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "Exception Caught:  ", e);
+            //Create alert dialog and prompt to save
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.savePromptMessage));
+            builder.setCancelable(true);
+            builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    saveCurrentNote();
+                }
+            });
+            builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //Do nothing intentionally
+                }
+            });
+            builder.create().show();
+        }
+
     }
 
     private void restoreAutosavedNote() {
