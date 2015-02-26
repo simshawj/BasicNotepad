@@ -4,12 +4,16 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
 
 public class PageActivity extends ActionBarActivity {
+    public final String TAG = this.getClass().getSimpleName();
+    private final String AUTOSAVE_FILENAME = "autosave.txt";
+
     private Note mCurrentNote;
     private EditText mNoteText;
 
@@ -103,14 +107,19 @@ public class PageActivity extends ActionBarActivity {
 
     private void createNewNote() {
         mCurrentNote = new Note();
-        mNoteText.setText("");
+        mNoteText.setText(mCurrentNote.getNoteText());
     }
 
     private void loadNote() {
+        Log.i(TAG, "In loadNote()");
         //TODO: Prompt user where note is saved and load the note
+        //String newNoteText = TODO
+        //mCurrentNote= new Note(newNoteText);
+        //mNoteText.setText(mCurrentNote.getText());
     }
 
     private void saveCurrentNote() {
+        Log.i(TAG, "In saveCurrentNote()");
         //TODO: Add in ability to save notes to documents folder
     }
 
@@ -119,14 +128,19 @@ public class PageActivity extends ActionBarActivity {
     }
 
     private void autosaveCurrentNote() {
-
+        Log.i(TAG, "In autosaveCurrentNote()");
     }
 
     private void restoreAutosavedNote() {
-
+        //verify that an autosaed note exists if not, toast an error and return out of the function
+        //open file to read
+        //read in to note
+        //update display with contents of the note
+        Log.i(TAG, "In restoreAutosavedNote()");
     }
 
     private boolean autosaveNoteAvailable() {
+        Log.i(TAG, "Checking if autosave file exists");
         return false;
     }
 }
