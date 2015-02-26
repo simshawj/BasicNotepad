@@ -10,6 +10,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -133,9 +135,11 @@ public class PageActivity extends ActionBarActivity {
     }
 
     private void autosaveCurrentNote() {
-        Log.i(TAG, "In autosaveCurrentNote()");
         FileOutputStream outputStream;
 
+        Log.i(TAG, "In autosaveCurrentNote()");
+
+        mCurrentNote.setNoteText(mNoteText.getText().toString());
         try {
             outputStream = openFileOutput(AUTOSAVE_FILENAME, Context.MODE_PRIVATE);
             outputStream.write(mCurrentNote.getNoteText().getBytes());
@@ -145,7 +149,7 @@ public class PageActivity extends ActionBarActivity {
             Log.e(TAG, "Exception Caught:  ", e);
             //Create alert dialog and prompt to save
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(getString(R.string.savePromptMessage));
+            builder.setMessage(getString(R.string.autosaveFailAlertText));
             builder.setCancelable(true);
             builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
                 @Override
@@ -165,15 +169,31 @@ public class PageActivity extends ActionBarActivity {
     }
 
     private void restoreAutosavedNote() {
-        //verify that an autosaed note exists if not, toast an error and return out of the function
-        //open file to read
-        //read in to note
-        //update display with contents of the note
         Log.i(TAG, "In restoreAutosavedNote()");
+        FileInputStream inputStream;
+        String inputString = "";
+
+        try {
+            inputStream = openFileInput(AUTOSAVE_FILENAME);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((inputStream.read(buffer)) != -1) {
+                inputString += new String(buffer);
+            }
+            mCurrentNote = new Note(inputString);
+            mNoteText.setText(inputString);
+        }
+        catch (IOException e) {
+            Log.e(TAG, "Exception Caught:  ", e);
+
+        }
     }
 
     private boolean autosaveNoteAvailable() {
+        File file = new File(this.getFilesDir(), AUTOSAVE_FILENAME);
+
         Log.i(TAG, "Checking if autosave file exists");
-        return false;
+
+        return file.exists();
     }
 }
