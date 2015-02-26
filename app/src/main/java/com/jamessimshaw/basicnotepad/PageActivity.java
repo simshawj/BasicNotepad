@@ -1,15 +1,15 @@
 package com.jamessimshaw.basicnotepad;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 
 
-public class PageActivity extends ActionBarActivity {
+public class PageActivity extends Activity {
     public final String TAG = this.getClass().getSimpleName();
 
     private Note mNote;
