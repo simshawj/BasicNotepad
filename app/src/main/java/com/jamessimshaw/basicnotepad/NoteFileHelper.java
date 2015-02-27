@@ -1,9 +1,14 @@
 package com.jamessimshaw.basicnotepad;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +26,7 @@ public class NoteFileHelper {
 
     private Context mContext;
     private Note mNote;
+    View mFilenameDialogView;
 
     DialogInterface.OnClickListener mSaveListener = new DialogInterface.OnClickListener() {
         @Override
@@ -34,26 +40,51 @@ public class NoteFileHelper {
         mContext = context;
         mNote = note;
 
-        if (saveFlag == FILE_AUTOSAVE) {
-            FileOutputStream outputStream;
 
+        if (saveFlag == FILE_AUTOSAVE) {
             try {
-                outputStream = context.openFileOutput(AUTOSAVE_FILENAME, Context.MODE_PRIVATE);
-                outputStream.write(note.getNoteText().getBytes());
+                FileOutputStream outputStream;
+                outputStream = mContext.openFileOutput(AUTOSAVE_FILENAME,
+                        Context.MODE_PRIVATE);
+                outputStream.write(mNote.getNoteText().getBytes());
                 outputStream.close();
             }
             catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
                 //Create alert dialog and prompt to save
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setMessage(context.getString(R.string.autosaveFailAlertText));
-                builder.setPositiveButton(context.getString(R.string.savePromptSaveOption), mSaveListener);
-                builder.setNegativeButton(context.getString(R.string.savePromptNoSaveOption), null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage(mContext.getString(R.string.autosaveFailAlertText));
+                builder.setPositiveButton(mContext.getString(R.string.savePromptSaveOption),
+                        mSaveListener);
+                builder.setNegativeButton(mContext.getString(R.string.savePromptNoSaveOption),
+                        null);
                 builder.create().show();
             }
         }
         else {
-
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();  //TODO: See if there's a better way to do this
+            mFilenameDialogView = inflater.inflate(R.layout.dialog_filename, null);
+            builder.setView(mFilenameDialogView);
+            builder.setPositiveButton(mContext.getString(R.string.savePromptSaveOption),
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            EditText editText = (EditText)mFilenameDialogView.findViewById(R.id.dialogFilenameText);
+                            String filename = editText.getText().toString();
+                            if (isExternalStorageAvailable()) {
+                                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), filename);
+                                if (file.exists()) {
+                                    // Prompt to overwrite
+                                }
+                                else {
+                                    //write File
+                                    Log.i(TAG, "File Does Not Exist");
+                                }
+                            }
+                        }
+                    });
+            builder.create().show();
         }
     }
 
@@ -81,5 +112,10 @@ public class NoteFileHelper {
         File file = new File(context.getFilesDir(), AUTOSAVE_FILENAME);
 
         return file.exists();
+    }
+
+    public boolean isExternalStorageAvailable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 }

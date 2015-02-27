@@ -33,7 +33,7 @@ public class PageActivity extends Activity {
 
     @Override
     protected void onStop() {
-        mNote.setNoteText(mNoteText.getText().toString());
+        updateNote();
         mNoteFileHelper.saveNote(this, mNote, NoteFileHelper.FILE_AUTOSAVE);
         super.onStop();
     }
@@ -59,14 +59,19 @@ public class PageActivity extends Activity {
                 builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mNoteFileHelper.saveNote(PageActivity.this, mNote, NoteFileHelper.FILE_EXTERNAL);
-                        mNote = mNoteFileHelper.loadNote(PageActivity.this, NoteFileHelper.FILE_EXTERNAL);
+                        updateNote();
+                        mNoteFileHelper.saveNote(PageActivity.this,
+                                mNote,
+                                NoteFileHelper.FILE_EXTERNAL);
+                        mNote = mNoteFileHelper.loadNote(PageActivity.this,
+                                NoteFileHelper.FILE_EXTERNAL);
                     }
                 });
                 builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mNote = mNoteFileHelper.loadNote(PageActivity.this, NoteFileHelper.FILE_EXTERNAL);
+                        mNote = mNoteFileHelper.loadNote(PageActivity.this,
+                                NoteFileHelper.FILE_EXTERNAL);
                     }
                 });
                 builder.create().show();
@@ -77,6 +82,7 @@ public class PageActivity extends Activity {
             return true;
         }
         else if (id == R.id.action_save) {
+            updateNote();
             mNoteFileHelper.saveNote(this, mNote, NoteFileHelper.FILE_EXTERNAL);
             return true;
         }
@@ -88,7 +94,10 @@ public class PageActivity extends Activity {
                 builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mNoteFileHelper.saveNote(PageActivity.this, mNote, NoteFileHelper.FILE_EXTERNAL);
+                        updateNote();
+                        mNoteFileHelper.saveNote(PageActivity.this,
+                                mNote,
+                                NoteFileHelper.FILE_EXTERNAL);
                         createNewNote();
                     }
                 });
@@ -116,5 +125,9 @@ public class PageActivity extends Activity {
 
     private boolean hasNoteTextChanged() {
         return !mNote.getNoteText().equals(mNoteText.getText().toString());
+    }
+
+    private void updateNote() {
+        mNote.setNoteText(mNoteText.getText().toString());
     }
 }
