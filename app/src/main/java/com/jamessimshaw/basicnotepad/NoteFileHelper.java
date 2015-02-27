@@ -70,17 +70,33 @@ public class NoteFileHelper {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText editText = (EditText)mFilenameDialogView.findViewById(R.id.dialogFilenameText);
+                            EditText editText = (EditText)mFilenameDialogView.
+                                    findViewById(R.id.dialogFilenameText);
                             String filename = editText.getText().toString();
                             if (isExternalStorageAvailable()) {
-                                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), filename);
+                                File dirFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
+                                File file = new File(dirFile, filename);
+                                dirFile.mkdirs();                       //Creates directory if it doesn't exist
                                 if (file.exists()) {
                                     // Prompt to overwrite
                                 }
                                 else {
                                     //write File
-                                    Log.i(TAG, "File Does Not Exist");
+                                    try {
+                                        Log.i(TAG, file.getAbsolutePath());
+                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                        fileOutputStream.write(mNote.getNoteText().getBytes());
+                                        fileOutputStream.close();
+                                        Log.i(TAG, file.getAbsolutePath());
+                                    }
+                                    catch(IOException e) {
+
+                                    }
+
                                 }
+                            }
+                            else {
+
                             }
                         }
                     });
@@ -100,6 +116,7 @@ public class NoteFileHelper {
                 while ((inputStream.read(buffer)) != -1) {
                     inputString += new String(buffer);
                 }
+                inputStream.close();
                 mNote = new Note(inputString);
             } catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
