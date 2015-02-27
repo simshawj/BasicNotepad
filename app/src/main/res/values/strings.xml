@@ -15,4 +15,6 @@
     <string name="overwritePromptAffirmative">Yes</string>
     <string name="overwritePromptNegative">No</string>
     <string name="ioExceptionWritingLogMessage">Unable to write the file.</string>
+    <string name="externalStorageUnavailableToastMessage">Storage is unavailable.  Unable to save.</string>
+    <string name="fileNotFoundLoadToast">Could not load file. File not found.</string>
 </resources>

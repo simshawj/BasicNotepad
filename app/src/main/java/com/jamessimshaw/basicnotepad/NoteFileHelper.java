@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,59 +24,44 @@ public class NoteFileHelper {
     private static final String AUTOSAVE_FILENAME = "autosave.txt";
     public final String TAG = this.getClass().getSimpleName();
 
-    private Context mContext;
-    private Note mNote;
     private View mFilenameDialogView;
-    private File mFile;
-    private File mDirectory;
-
-    DialogInterface.OnClickListener mSaveListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            saveNote(mContext, mNote, FILE_EXTERNAL);
-        }
-    };
-
-    DialogInterface.OnClickListener mOverwriteConfirmListener = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            writeToFile(mFile);
-        }
-    };
-
-    public void saveNote(Context context, Note note, int saveFlag) {
-        mContext = context;
-        mNote = note;
+    private Note mLoadedNote;
 
 
+    public void saveNote(final Context context, final Note note, int saveFlag) {
         if (saveFlag == FILE_AUTOSAVE) {
             try {
                 FileOutputStream fileOutputStream;
-                fileOutputStream = mContext.openFileOutput(AUTOSAVE_FILENAME,
+                fileOutputStream = context.openFileOutput(AUTOSAVE_FILENAME,
                         Context.MODE_PRIVATE);
-                fileOutputStream.write(mNote.getNoteText().getBytes());
+                fileOutputStream.write(note.getNoteText().getBytes());
                 fileOutputStream.close();
             }
             catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
                 //Create alert dialog and prompt to save
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setMessage(mContext.getString(R.string.autosaveFailAlertText));
-                builder.setPositiveButton(mContext.getString(R.string.savePromptSaveOption),
-                        mSaveListener);
-                builder.setNegativeButton(mContext.getString(R.string.savePromptNoSaveOption),
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setMessage(context.getString(R.string.autosaveFailAlertText));
+                builder.setPositiveButton(context.getString(R.string.savePromptSaveOption),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                saveNote(context, note, FILE_EXTERNAL);
+                            }
+                        });
+                builder.setNegativeButton(context.getString(R.string.savePromptNoSaveOption),
                         null);
                 builder.create().show();
             }
         }
         else {
             //TODO: Refactor this code block
-            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            LayoutInflater inflater = (LayoutInflater) mContext
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mFilenameDialogView = inflater.inflate(R.layout.dialog_filename, null);
             builder.setView(mFilenameDialogView);
-            builder.setPositiveButton(mContext.getString(R.string.savePromptSaveOption),
+            builder.setPositiveButton(context.getString(R.string.savePromptSaveOption),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -83,24 +69,35 @@ public class NoteFileHelper {
                                     findViewById(R.id.dialogFilenameText);
                             String filename = editText.getText().toString();
                             if (isExternalStorageAvailable()) {
-                                mDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
-                                mFile = new File(mDirectory, filename);
-                                mDirectory.mkdirs();                       //Creates directories if they don't exist
-                                if (mFile.exists()) {
+                                final File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
+                                final File file = new File(directory, filename);
+                                directory.mkdirs();                       //Creates directories if they don't exist
+                                if (file.exists()) {
                                     // Prompt to overwrite
-                                    AlertDialog.Builder overwriteBuilder = new AlertDialog.Builder(mContext);
-                                    overwriteBuilder.setMessage(mContext.getString(R.string.overwritePromptMessage));
-                                    overwriteBuilder.setPositiveButton(mContext.getString(R.string.overwritePromptAffirmative), mOverwriteConfirmListener);
-                                    overwriteBuilder.setNegativeButton(mContext.getString(R.string.overwritePromptNegative), mSaveListener);
+                                    AlertDialog.Builder overwriteBuilder = new AlertDialog.Builder(context);
+                                    overwriteBuilder.setMessage(context.getString(R.string.overwritePromptMessage));
+                                    overwriteBuilder.setPositiveButton(context.getString(R.string.overwritePromptAffirmative),
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    writeTextToFile(context, note.getNoteText(), file);
+                                                }
+                                            });
+                                    overwriteBuilder.setNegativeButton(context.getString(R.string.overwritePromptNegative),
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    saveNote(context, note, FILE_EXTERNAL);
+                                                }
+                                            });
                                     overwriteBuilder.create().show();
                                 }
                                 else {
-                                    //write File
-                                    writeToFile(mFile);
+                                    writeTextToFile(context, note.getNoteText(), file);
                                 }
                             }
                             else {
-
+                                Toast.makeText(context, context.getString(R.string.externalStorageUnavailableToastMessage), Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -108,42 +105,43 @@ public class NoteFileHelper {
         }
     }
 
-    private void writeToFile(File file) {
+    private void writeTextToFile(final Context context, String string, File file) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            fileOutputStream.write(mNote.getNoteText().getBytes());
+            fileOutputStream.write(string.getBytes());
             fileOutputStream.close();
         }
         catch(IOException e) {
-            Log.d(TAG, mContext.getString(R.string.ioExceptionWritingLogMessage));
+            Log.d(TAG, context.getString(R.string.ioExceptionWritingLogMessage));
         }
     }
 
-    public Note loadNote(Context context, int loadFlag) {
+    public Note loadNote(final Context context, int loadFlag) {
+        mLoadedNote = null;
         if (loadFlag == FILE_AUTOSAVE) {
-            FileInputStream inputStream;
             String inputString = "";
-
+            FileInputStream inputStream;
             try {
                 inputStream = context.openFileInput(AUTOSAVE_FILENAME);
                 byte[] buffer = new byte[1024];
-                int length;
                 while ((inputStream.read(buffer)) != -1) {
                     inputString += new String(buffer).trim();
                 }
                 inputStream.close();
-                mNote = new Note(inputString);
+                mLoadedNote = new Note(inputString);
             } catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
             }
+            context.deleteFile(AUTOSAVE_FILENAME);
         }
         else {
-            //TODO: Find file and load
+
         }
-        return mNote;
+        Log.i(TAG, mLoadedNote.getNoteText());
+        return mLoadedNote;
     }
 
-    public boolean autosaveNoteAvailable(Context context) {
+    public boolean autosaveNoteAvailable(final Context context) {
         File file = new File(context.getFilesDir(), AUTOSAVE_FILENAME);
 
         return file.exists();

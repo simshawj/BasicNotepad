@@ -63,22 +63,29 @@ public class PageActivity extends Activity {
                         mNoteFileHelper.saveNote(PageActivity.this,
                                 mNote,
                                 NoteFileHelper.FILE_EXTERNAL);
-                        mNote = mNoteFileHelper.loadNote(PageActivity.this,
+                        Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
                                 NoteFileHelper.FILE_EXTERNAL);
+                        if (tempNote != null)
+                            mNote = tempNote;
                     }
                 });
                 builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        mNote = mNoteFileHelper.loadNote(PageActivity.this,
+                        Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
                                 NoteFileHelper.FILE_EXTERNAL);
+                        if (tempNote != null)
+                            mNote = tempNote;
                     }
                 });
                 builder.create().show();
             }
             else{
-                mNote = mNoteFileHelper.loadNote(this, NoteFileHelper.FILE_EXTERNAL);
+                Note tempNote = mNoteFileHelper.loadNote(this, NoteFileHelper.FILE_EXTERNAL);
+                if (tempNote != null)
+                    mNote = tempNote;
             }
+            updateScreen();
             return true;
         }
         else if (id == R.id.action_save) {
@@ -121,6 +128,7 @@ public class PageActivity extends Activity {
     private void createNewNote() {
         mNote = new Note();
         mNoteText.setText(mNote.getNoteText());
+        mNoteFileHelper = new NoteFileHelper();
     }
 
     private boolean hasNoteTextChanged() {
@@ -129,5 +137,9 @@ public class PageActivity extends Activity {
 
     private void updateNote() {
         mNote.setNoteText(mNoteText.getText().toString());
+    }
+
+    private void updateScreen() {
+        mNoteText.setText(mNote.getNoteText());
     }
 }
