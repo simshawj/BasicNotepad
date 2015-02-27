@@ -11,4 +11,8 @@
     <string name="savePromptNoSaveOption">Don\'t Save</string>
     <string name="autosaveFailAlertText">An error occurred while trying to autosave, do you want to choose a save location?</string>
     <string name="save_dialog_FilenameHint">Enter a filename</string>
+    <string name="overwritePromptMessage">File already exists, do you wish to overwrite it?</string>
+    <string name="overwritePromptAffirmative">Yes</string>
+    <string name="overwritePromptNegative">No</string>
+    <string name="ioExceptionWritingLogMessage">Unable to write the file.</string>
 </resources>

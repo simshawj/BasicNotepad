@@ -1,6 +1,5 @@
 package com.jamessimshaw.basicnotepad;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,7 +25,9 @@ public class NoteFileHelper {
 
     private Context mContext;
     private Note mNote;
-    View mFilenameDialogView;
+    private View mFilenameDialogView;
+    private File mFile;
+    private File mDirectory;
 
     DialogInterface.OnClickListener mSaveListener = new DialogInterface.OnClickListener() {
         @Override
@@ -35,6 +36,12 @@ public class NoteFileHelper {
         }
     };
 
+    DialogInterface.OnClickListener mOverwriteConfirmListener = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            writeToFile(mFile);
+        }
+    };
 
     public void saveNote(Context context, Note note, int saveFlag) {
         mContext = context;
@@ -43,11 +50,11 @@ public class NoteFileHelper {
 
         if (saveFlag == FILE_AUTOSAVE) {
             try {
-                FileOutputStream outputStream;
-                outputStream = mContext.openFileOutput(AUTOSAVE_FILENAME,
+                FileOutputStream fileOutputStream;
+                fileOutputStream = mContext.openFileOutput(AUTOSAVE_FILENAME,
                         Context.MODE_PRIVATE);
-                outputStream.write(mNote.getNoteText().getBytes());
-                outputStream.close();
+                fileOutputStream.write(mNote.getNoteText().getBytes());
+                fileOutputStream.close();
             }
             catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
@@ -62,8 +69,10 @@ public class NoteFileHelper {
             }
         }
         else {
+            //TODO: Refactor this code block
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            LayoutInflater inflater = ((Activity)mContext).getLayoutInflater();  //TODO: See if there's a better way to do this
+            LayoutInflater inflater = (LayoutInflater) mContext
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             mFilenameDialogView = inflater.inflate(R.layout.dialog_filename, null);
             builder.setView(mFilenameDialogView);
             builder.setPositiveButton(mContext.getString(R.string.savePromptSaveOption),
@@ -74,25 +83,20 @@ public class NoteFileHelper {
                                     findViewById(R.id.dialogFilenameText);
                             String filename = editText.getText().toString();
                             if (isExternalStorageAvailable()) {
-                                File dirFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
-                                File file = new File(dirFile, filename);
-                                dirFile.mkdirs();                       //Creates directory if it doesn't exist
-                                if (file.exists()) {
+                                mDirectory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
+                                mFile = new File(mDirectory, filename);
+                                mDirectory.mkdirs();                       //Creates directories if they don't exist
+                                if (mFile.exists()) {
                                     // Prompt to overwrite
+                                    AlertDialog.Builder overwriteBuilder = new AlertDialog.Builder(mContext);
+                                    overwriteBuilder.setMessage(mContext.getString(R.string.overwritePromptMessage));
+                                    overwriteBuilder.setPositiveButton(mContext.getString(R.string.overwritePromptAffirmative), mOverwriteConfirmListener);
+                                    overwriteBuilder.setNegativeButton(mContext.getString(R.string.overwritePromptNegative), mSaveListener);
+                                    overwriteBuilder.create().show();
                                 }
                                 else {
                                     //write File
-                                    try {
-                                        Log.i(TAG, file.getAbsolutePath());
-                                        FileOutputStream fileOutputStream = new FileOutputStream(file);
-                                        fileOutputStream.write(mNote.getNoteText().getBytes());
-                                        fileOutputStream.close();
-                                        Log.i(TAG, file.getAbsolutePath());
-                                    }
-                                    catch(IOException e) {
-
-                                    }
-
+                                    writeToFile(mFile);
                                 }
                             }
                             else {
@@ -101,6 +105,17 @@ public class NoteFileHelper {
                         }
                     });
             builder.create().show();
+        }
+    }
+
+    private void writeToFile(File file) {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(mNote.getNoteText().getBytes());
+            fileOutputStream.close();
+        }
+        catch(IOException e) {
+            Log.d(TAG, mContext.getString(R.string.ioExceptionWritingLogMessage));
         }
     }
 
@@ -114,13 +129,16 @@ public class NoteFileHelper {
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((inputStream.read(buffer)) != -1) {
-                    inputString += new String(buffer);
+                    inputString += new String(buffer).trim();
                 }
                 inputStream.close();
                 mNote = new Note(inputString);
             } catch (IOException e) {
                 Log.e(TAG, "Exception Caught:  ", e);
             }
+        }
+        else {
+            //TODO: Find file and load
         }
         return mNote;
     }
