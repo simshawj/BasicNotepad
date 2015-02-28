@@ -3,6 +3,7 @@ package com.jamessimshaw.basicnotepad;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +53,8 @@ public class PageActivity extends Activity {
             return true;
         }
         else if (id == R.id.action_load) {
+            Intent intent = new Intent(this, ListFilesActivity.class);
+
             if (hasNoteTextChanged()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage(getString(R.string.savePromptMessage));

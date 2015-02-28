@@ -137,7 +137,6 @@ public class NoteFileHelper {
         else {
 
         }
-        Log.i(TAG, mLoadedNote.getNoteText());
         return mLoadedNote;
     }
 
