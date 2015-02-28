@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 public class PageActivity extends Activity {
     public final String TAG = this.getClass().getSimpleName();
+    private static final int LOAD_FILE_SELECTION = 1;
 
     private Note mNote;
     private EditText mNoteText;
@@ -54,41 +55,9 @@ public class PageActivity extends Activity {
         }
         else if (id == R.id.action_load) {
             Intent intent = new Intent(this, ListFilesActivity.class);
+            startActivityForResult(intent, LOAD_FILE_SELECTION);
 
-            if (hasNoteTextChanged()) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(getString(R.string.savePromptMessage));
-                builder.setCancelable(true);
-                builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        updateNote();
-                        mNoteFileHelper.saveNote(PageActivity.this,
-                                mNote,
-                                NoteFileHelper.FILE_EXTERNAL);
-                        Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
-                                NoteFileHelper.FILE_EXTERNAL);
-                        if (tempNote != null)
-                            mNote = tempNote;
-                    }
-                });
-                builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
-                                NoteFileHelper.FILE_EXTERNAL);
-                        if (tempNote != null)
-                            mNote = tempNote;
-                    }
-                });
-                builder.create().show();
-            }
-            else{
-                Note tempNote = mNoteFileHelper.loadNote(this, NoteFileHelper.FILE_EXTERNAL);
-                if (tempNote != null)
-                    mNote = tempNote;
-            }
-            updateScreen();
+
             return true;
         }
         else if (id == R.id.action_save) {
@@ -144,5 +113,55 @@ public class PageActivity extends Activity {
 
     private void updateScreen() {
         mNoteText.setText(mNote.getNoteText());
+    }
+
+    private void loadNoteFromFile(final String filename) {
+        if (hasNoteTextChanged()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(getString(R.string.savePromptMessage));
+            builder.setCancelable(true);
+            builder.setPositiveButton(getString(R.string.savePromptSaveOption), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    updateNote();
+                    mNoteFileHelper.saveNote(PageActivity.this,
+                            mNote,
+                            NoteFileHelper.FILE_EXTERNAL);
+                    Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
+                            filename);
+                    if (tempNote != null)
+                        mNote = tempNote;
+                }
+            });
+            builder.setNegativeButton(getString(R.string.savePromptNoSaveOption), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Note tempNote = mNoteFileHelper.loadNote(PageActivity.this,
+                            filename);
+                    if (tempNote != null)
+                        mNote = tempNote;
+                }
+            });
+            builder.create().show();
+        }
+        else{
+            Note tempNote = mNoteFileHelper.loadNote(this, filename);
+            if (tempNote != null)
+                mNote = tempNote;
+        }
+        updateScreen();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch(requestCode) {
+            case (LOAD_FILE_SELECTION):
+                String filename;
+                if (resultCode == Activity.RESULT_OK) {
+                    filename = data.getStringExtra("filename");
+                    loadNoteFromFile(filename);
+                }
+                break;
+        }
     }
 }

@@ -134,10 +134,27 @@ public class NoteFileHelper {
             }
             context.deleteFile(AUTOSAVE_FILENAME);
         }
-        else {
-
-        }
         return mLoadedNote;
+    }
+
+    public Note loadNote(final Context context, String filename) {
+        Note note = null;
+        String inputString = "";
+        try {
+            File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "BasicNotepad");
+            File file = new File(directory, filename);
+            FileInputStream inputStream = new FileInputStream(file);
+            byte[] buffer = new byte[1024];
+            while ((inputStream.read(buffer)) != -1) {
+                inputString += new String(buffer).trim();
+            }
+            inputStream.close();
+            note = new Note(inputString);
+        } catch (IOException e) {
+            Log.e(TAG, "Exception Caught:  ", e);
+        }
+
+        return note;
     }
 
     public boolean autosaveNoteAvailable(final Context context) {
