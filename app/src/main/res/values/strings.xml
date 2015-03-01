@@ -18,4 +18,5 @@
     <string name="externalStorageUnavailableToastMessage">Storage is unavailable.  Unable to save.</string>
     <string name="fileNotFoundLoadToast">Could not load file. File not found.</string>
     <string name="title_activity_list_files">Basic Notepad</string>
+    <string name="loadFileIOErrorToast">Cannot load file. Please try again later.</string>
 </resources>

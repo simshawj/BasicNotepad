@@ -24,10 +24,6 @@ public class NoteFileHelper {
     private static final String AUTOSAVE_FILENAME = "autosave.txt";
     public final String TAG = this.getClass().getSimpleName();
 
-    private View mFilenameDialogView;
-    private Note mLoadedNote;
-
-
     public void saveNote(final Context context, final Note note, int saveFlag) {
         if (saveFlag == FILE_AUTOSAVE) {
             try {
@@ -59,13 +55,13 @@ public class NoteFileHelper {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            mFilenameDialogView = inflater.inflate(R.layout.dialog_filename, null);
-            builder.setView(mFilenameDialogView);
+            final View filenameDialogView = inflater.inflate(R.layout.dialog_filename, null);
+            builder.setView(filenameDialogView);
             builder.setPositiveButton(context.getString(R.string.savePromptSaveOption),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            EditText editText = (EditText)mFilenameDialogView.
+                            EditText editText = (EditText) filenameDialogView.
                                     findViewById(R.id.dialogFilenameText);
                             String filename = editText.getText().toString();
                             if (isExternalStorageAvailable()) {
@@ -117,7 +113,7 @@ public class NoteFileHelper {
     }
 
     public Note loadNote(final Context context, int loadFlag) {
-        mLoadedNote = null;
+        Note note = null;
         if (loadFlag == FILE_AUTOSAVE) {
             String inputString = "";
             FileInputStream inputStream;
@@ -128,13 +124,13 @@ public class NoteFileHelper {
                     inputString += new String(buffer).trim();
                 }
                 inputStream.close();
-                mLoadedNote = new Note(inputString);
+                note = new Note(inputString);
             } catch (IOException e) {
-                Log.e(TAG, "Exception Caught:  ", e);
+                Toast.makeText(context, context.getString(R.string.loadFileIOErrorToast), Toast.LENGTH_LONG).show();
             }
             context.deleteFile(AUTOSAVE_FILENAME);
         }
-        return mLoadedNote;
+        return note;
     }
 
     public Note loadNote(final Context context, String filename) {
@@ -151,7 +147,7 @@ public class NoteFileHelper {
             inputStream.close();
             note = new Note(inputString);
         } catch (IOException e) {
-            Log.e(TAG, "Exception Caught:  ", e);
+            Toast.makeText(context, context.getString(R.string.loadFileIOErrorToast), Toast.LENGTH_LONG).show();
         }
 
         return note;
