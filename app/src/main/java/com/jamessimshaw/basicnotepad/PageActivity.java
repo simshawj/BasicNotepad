@@ -50,10 +50,7 @@ public class PageActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        else if (id == R.id.action_load) {
+        if (id == R.id.action_load) {
             Intent intent = new Intent(this, ListFilesActivity.class);
             startActivityForResult(intent, LOAD_FILE_SELECTION);
 
