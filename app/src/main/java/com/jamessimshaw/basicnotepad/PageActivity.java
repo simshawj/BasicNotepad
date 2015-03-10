@@ -11,7 +11,6 @@ import android.widget.EditText;
 
 
 public class PageActivity extends Activity {
-    public final String TAG = this.getClass().getSimpleName();
     private static final int LOAD_FILE_SELECTION = 1;
 
     private Note mNote;

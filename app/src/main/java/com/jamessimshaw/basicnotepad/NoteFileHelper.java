@@ -15,14 +15,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/**
- * Created by james on 2/26/15.
- */
 public class NoteFileHelper {
     public static final int FILE_AUTOSAVE = 0;
     public static final int FILE_EXTERNAL = 1;
     private static final String AUTOSAVE_FILENAME = "autosave.txt";
-    public final String TAG = this.getClass().getSimpleName();
+    private final String TAG = this.getClass().getSimpleName();
 
     public void saveNote(final Context context, final Note note, int saveFlag) {
         if (saveFlag == FILE_AUTOSAVE) {
